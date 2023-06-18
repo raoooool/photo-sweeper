@@ -6,14 +6,18 @@ import {
 } from "expo-media-library";
 import { useRequest } from "ahooks";
 import { useEffect, useMemo, useState } from "react";
-import { Stack } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import AlbumCard from "../components/AlbumCard";
+import useAlbumStore from "../stores/albumStore";
 
 const SCROLL_VIEW_PADDING = 24;
 const CARDS_GAP = 12;
 
 export default function HomePage() {
   const [permissionResponse, requestPermission] = usePermissions();
+  const setAlbums = useAlbumStore((s) => s.setAlbums);
+
+  const router = useRouter();
 
   const { data: albums = [] } = useRequest(
     () =>
@@ -22,6 +26,7 @@ export default function HomePage() {
       ),
     {
       ready: permissionResponse?.status === PermissionStatus.GRANTED,
+      onSuccess: (albums) => setAlbums(albums),
     }
   );
 
@@ -50,6 +55,7 @@ export default function HomePage() {
               height={cardWidth}
               key={album.title}
               album={album}
+              onPress={() => router.push(`/album/${album.id}`)}
             />
           ))}
         </XStack>
