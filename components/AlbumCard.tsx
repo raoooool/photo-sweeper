@@ -22,24 +22,28 @@ export default function AlbumCard(props: { album: Album } & CardProps) {
   const cardContentRender = () => {
     if (loading)
       return (
-        <Card.Background>
+        <Card.Background display="flex" jc="center" alignItems="center">
           <Spinner />
         </Card.Background>
       );
     return (
       <Card.Background>
         <Card.Header padded>
-          <H3>{props.album.title}</H3>
+          <H3>
+            {props.album.title}({props.album.assetCount})
+          </H3>
         </Card.Header>
-        <Image
-          resizeMode="cover"
-          alignSelf="center"
-          opacity={0.4}
-          source={{
-            uri: coverUri,
-            ...cardSize,
-          }}
-        />
+        {coverUri && (
+          <Image
+            resizeMode="cover"
+            alignSelf="center"
+            opacity={0.4}
+            source={{
+              uri: coverUri,
+              ...cardSize,
+            }}
+          />
+        )}
       </Card.Background>
     );
   };

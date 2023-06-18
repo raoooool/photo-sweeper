@@ -1,13 +1,16 @@
-import { ScrollView } from "tamagui";
+import { ScrollView, XStack } from "tamagui";
 import {
   PermissionStatus,
   getAlbumsAsync,
   usePermissions,
 } from "expo-media-library";
 import { useRequest } from "ahooks";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Stack } from "expo-router";
 import AlbumCard from "../components/AlbumCard";
+
+const SCROLL_VIEW_PADDING = 24;
+const CARDS_GAP = 12;
 
 export default function HomePage() {
   const [permissionResponse, requestPermission] = usePermissions();
@@ -19,10 +22,14 @@ export default function HomePage() {
       ),
     {
       ready: permissionResponse?.status === PermissionStatus.GRANTED,
-      onSuccess(albums) {
-        console.log("albums :>> ", albums);
-      },
     }
+  );
+
+  const [scrollViewWidth, setScrollViewWidth] = useState(0);
+
+  const cardWidth = useMemo(
+    () => (scrollViewWidth - SCROLL_VIEW_PADDING * 2 - CARDS_GAP) >> 1,
+    [scrollViewWidth]
   );
 
   useEffect(() => {
@@ -32,16 +39,20 @@ export default function HomePage() {
   return (
     <>
       <Stack.Screen options={{ title: "相册清道夫 🧹" }} />
-      <ScrollView contentInsetAdjustmentBehavior="automatic" padding="$4">
-        {albums.map((album) => (
-          <AlbumCard
-            width="50%"
-            height={0}
-            paddingBottom="50%"
-            key={album.title}
-            album={album}
-          />
-        ))}
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        onLayout={(e) => setScrollViewWidth(e.nativeEvent.layout.width)}
+      >
+        <XStack padding={SCROLL_VIEW_PADDING} flexWrap="wrap" gap={CARDS_GAP}>
+          {albums.map((album) => (
+            <AlbumCard
+              width={cardWidth}
+              height={cardWidth}
+              key={album.title}
+              album={album}
+            />
+          ))}
+        </XStack>
       </ScrollView>
     </>
   );
